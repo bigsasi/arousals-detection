@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<MiasoftMCHconfiguration>
+    <montage>
+        <name>DemoMontage</name>
+        <filter name='notch' bandWidth='1' center='50'>
+            <signals>
+                <eeg1 />
+                <emg />
+            </signals>
+        </filter>
+        <filter name='notch' bandWidth='1' center='100'>
+            <signals>
+                <eeg1 />
+                <emg />
+            </signals>
+        </filter>
+        <filter name='highpass' gain='1' highPass='15'>
+            <signals>
+                <emg />
+            </signals>
+        </filter>
+        <filter name='ekgartifact'>
+            <signals>
+                <emg />
+                <eeg1 />
+            </signals>
+        </filter>
+    </montage>
+    <montage>
+        <name>SHHS</name>
+        <filter name='notch' bandWidth='1' center='60'>
+            <signals>
+                <eeg1 />
+                <emg />
+            </signals>
+        </filter>
+        <filter name='highpass' gain='1' highPass='15'>
+            <signals>
+                <emg />
+            </signals>
+        </filter>
+        <filter name='ekgartifact'>
+            <signals>
+                <emg />
+                <eeg1 />
+            </signals>
+        </filter>
+    </montage>
+</MiasoftMCHconfiguration>
+

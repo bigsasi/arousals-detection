@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<MiasoftMCHconfiguration>
+  <montage>
+    <name>DemoMontage</name>
+    <device>Unknown</device>
+    <channelmapping>
+      <eeg1 label="EEG O2-Cz">
+        <!--O2/Cz-->
+        <channel idx="1" label="EEG O2-Cz" sign="plus"></channel>
+      </eeg1>
+      <emg label="EMG chin">
+        <channel idx="2" label="EMG chin+-chin-" sign="plus"></channel>
+      </emg>
+      <ecg label="ECG">
+		<channel idx="3" label="ECG" sign="plus"></channel>
+	  </ecg>
+    </channelmapping>
+  </montage>
+  <montage>
+    <name>SHHS</name>
+    <device>SHHSdevice</device>
+    <channelmapping>
+      <eeg1 label="EEG C3/A2">
+        <!--C3/A2-->
+        <channel idx="8" label="EEG" sign="plus"></channel>
+      </eeg1>
+      <emg label="EMG chin">
+        <!--EMG chin-->
+        <channel idx="5" label="EMG" sign="plus"></channel>
+      </emg>
+      <ecg label="ECG">
+		<channel idx="4" label="ECG" sign="plus"></channel>
+	  </ecg>
+    </channelmapping>
+  </montage>
+</MiasoftMCHconfiguration>
+
