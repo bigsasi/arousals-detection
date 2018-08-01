@@ -1,10 +1,10 @@
 %% The code below is based on the methods described in the following reference(s):
 % 
-% [1] - I. Fern√°ndez-Varela, D. Alvarez-Estevez, E. Hern√°ndez-Pereira, V. Moret-Bonillo, 
+% [1] - I. Fern·ndez-Varela, D. Alvarez-Estevez, E. Hern·ndez-Pereira, V. Moret-Bonillo, 
 % "A simple and robust method for the automatic scoring of EEG arousals in
 % polysomnographic recordings", Computers in Biology and Medicine, vol. 87, pp. 77-86, 2017 
 %
-% Copyright (C) 2017 Isaac Fern√°ndez-Varela
+% Copyright (C) 2017 Isaac Fern·ndez-Varela
 % Copyright (C) 2017 Diego Alvarez-Estevez
 
 %% This program is free software: you can redistribute it and/or modify
@@ -19,7 +19,6 @@
 
 %% You should have received a copy of the GNU General Public License
 %% along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 function [annotations, header] = EDFreadAnnotations(filename, doSkipTimeKeep)
 
 annotations = [];
@@ -82,10 +81,22 @@ annotations.duration = [];
 annotations.label = [];
 annotations.offset = [];
 for k = 1:length(numberTALends)
+      
     if (k == 1)
         tal = eventsall(1:numberTALends(1));
     else
         tal = eventsall(numberTALends(k-1)+2:numberTALends(k));
+    end
+    if (ne(char(tal(1)),'+') && ne(char(tal(1)),'-'))
+      % Remove previous characters til + or - (possibly by block transition, thus zeros at left are expected)
+      strIdx = strfind(char(tal)', '+');
+      if isempty(strIdx)
+        strIdx = strfind(char(tal)', '-');
+      end
+      if isempty(strIdx)
+        error('Incorrect start of TAL');
+      end
+      tal = tal(strIdx:end);
     end
    % Find offset and duration
    sep = find(tal == 20);
@@ -98,10 +109,9 @@ for k = 1:length(numberTALends)
        % or equivalent function, specifying the UTF-8 encoding might be preferable
        % For the moment we leave it like this, as native2unicode is not
        % standarly supported by Octave
-       % This note applies for the rest of conversions on this code
+       % This note applies for the rest of similar conversions on this code
        %offset = str2double(native2unicode(tal(1:sep(1)-1))'); 
-       offset = str2double(char(tal(1:sep(1)-1))'); 
-           
+       offset = str2double(char(tal(1:sep(1)-1))');         
    else
        dur = str2double(char(tal(indxDur(1)+1:sep(1)-1))');
        offset = str2double(char(tal(1:indxDur(1)-1))');  
