@@ -31,15 +31,16 @@ function event = updateWithNonOverlappingEmg(event, emg)
     limit = Configuration.instance().updateWithFutureEmgLimit;
     windowSize = selectWindowSize(emg.rate);
     
-    numWindows = limit / windowSize;
+    numWindows = floor(limit / windowSize);
     threshold = Configuration.instance().updateWithFutureEmgThreshold;
 
     amplitudeWindowSize = selectAmplitudeWindowSize(emg.rate);
-    amplitudeWindowSamples = amplitudeWindowSize * emg.rate;
+    amplitudeWindowSamples = round(amplitudeWindowSize * emg.rate);
     
-    ampWindowsWindow = windowSize / amplitudeWindowSize;
+    ampWindowsWindow = round(windowSize / amplitudeWindowSize);
       
     prevWindow = abs(emg.raw(event.startSample - 10 * emg.rate:event.startSample - 1 * emg.rate - 1));
+    prevWindow = prevWindow(1:floor(length(prevWindow) / amplitudeWindowSamples) * amplitudeWindowSamples);
     % Median amplitude for amplitudeWindowSize seconds window
     previousAmp = median(max(reshape(prevWindow, [amplitudeWindowSamples, length(prevWindow) / amplitudeWindowSamples])));
     previousAmp = max(previousAmp, 15);
@@ -49,6 +50,7 @@ function event = updateWithNonOverlappingEmg(event, emg)
         return;
     end
     futureWindow = abs(emg.raw(event.endSample:event.endSample + limit * emg.rate - 1));
+    futureWindow = futureWindow(1:floor(length(futureWindow) / amplitudeWindowSamples) * amplitudeWindowSamples);
     futureAmp = max(reshape(futureWindow, [amplitudeWindowSamples, length(futureWindow) / amplitudeWindowSamples]));
     
     bigEmg = 0;
@@ -56,7 +58,7 @@ function event = updateWithNonOverlappingEmg(event, emg)
     newEnd = 0;
     
     for i = 1:numWindows
-        amplitude = median(futureAmp(i * ampWindowsWindow - ampWindowsWindow + 1:i*ampWindowsWindow));
+        amplitude = median(futureAmp((i - 1) * ampWindowsWindow + 1:i*ampWindowsWindow));
         
         if amplitude > previousAmp * threshold
             bigEmg = bigEmg + 1;
