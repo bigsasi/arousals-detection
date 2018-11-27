@@ -28,10 +28,10 @@
 
 provideHypnogram = 1;
 
-% Load work references
-addpath(genpath('..'));
+fileName = 'Male04yrs 04-AUG-2016 20h04m00s PSG.EDF';
+hypnogramFileName = [fileName(1:end-4) '_hypnogram.edf'];
 
-pathToFile = '..\DemoFiles\Male04yrs 04-AUG-2016 20h04m00s PSG.EDF';
+pathToFile = which(fileName);
 
 configurationMontage = xml_parseany('conf.xml');
 configurationFilters = xml_parseany('conf_filters.xml');
@@ -47,7 +47,7 @@ emg = edfFile.signal{edfFile.emg};
 %            external EDF+ file
 if provideHypnogram
     % Here we assume the hypnogram is provided using an external EDF+ file
-    fileHypnogram = [pathToFile(1:end-4), '_hypnogram.EDF'];
+    fileHypnogram = which(hypnogramFileName);
     hypnoAnnotations = loadEdfAnnotations(pathToFile, fileHypnogram);
     duration = edfFile.header.num_data_records * edfFile.header.duration_data_record;
     
