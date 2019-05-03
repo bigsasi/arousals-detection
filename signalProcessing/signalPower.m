@@ -9,10 +9,13 @@
 % 
 % [1] - I. Fernández-Varela, D. Alvarez-Estevez, E. Hernández-Pereira, V. Moret-Bonillo, 
 % "A simple and robust method for the automatic scoring of EEG arousals in
-% polysomnographic recordings", Computers in Biology and Medicine, vol. 87, pp. 77-86, 2017 
+% polysomnographic recordings", Computers in Biology and Medicine, vol. 87, pp. 77-86, 2017
 %
-% Copyright (C) 2017 Isaac Fernández-Varela
-% Copyright (C) 2017 Diego Alvarez-Estevez
+% [2] - D. Alvarez-Estevez, I. Fernández-Varela, "Large-scale validation of an automatic EEG arousal detection
+% algorithm using different heterogeneous databases", Sleep Medicine, vol. 57, pp. 6-14, 2019 
+%
+% Copyright (C) 2017-2019 Isaac Fernández-Varela
+% Copyright (C) 2017-2019 Diego Alvarez-Estevez
 
 %% This program is free software: you can redistribute it and/or modify
 %% it under the terms of the GNU General Public License as published by
@@ -55,6 +58,13 @@ function [varargout] = signalPower(signal, windowSize, signalRate, ...
     
     % Calculate the number of unique points (depending on nfft odd or even)
     NumUniquePts = ceil((windowSizeSamples+1)/2);
+    % Since we dropped half the FFT, we multiply mx by 2 to keep the same energy. 
+    % The DC component (fftx(1)) and Nyquist component (fftx(1+nfft/2), if it
+    % exists) are unique and should not be multiplied by 2.
+    limitPts = NumUniquePts - 1;
+    % odd nfft excludes Nyquist point
+    if rem(windowSizeSamples, 2), limitPts = NumUniquePts; end
+    
     % We construct the evenly spaced frequency vector with NumUniquePts to
     % represent x-axis
     step = signalRate / windowSizeSamples;
@@ -64,7 +74,7 @@ function [varargout] = signalPower(signal, windowSize, signalRate, ...
     f2 = ceil(hcutoff / step) + 1;
     f2(f2 > length(f)) = length(f);
 
-    varargout{nargout} = 0; 
+    varargout{nargout} = [];
     
     windowsLimit = length(1:windowStepSamples:signalLength - windowSizeSamples);
     currentSample = 1;
@@ -78,35 +88,25 @@ function [varargout] = signalPower(signal, windowSize, signalRate, ...
             currentSample = currentSample + windowStepSamples;
         end
 
-        fftx(:, i:i + windowsSize - 1) = fft(windows, windowSizeSamples);
-    end
-    fftx(:, windowsLimit + 1:numWindows) = 0;
-    currentWindow = windowsLimit;
-    
-    % Since FFT is symmetric, throw away second half
-    mx = abs(fftx(1:NumUniquePts, :));
-    % Take the square magnitude, thus to obtain the power (without scaling)
-    mx = mx .^ 2;
-    % Since we dropped half the FFT, we multiply mx by 2 to keep the same energy. 
-    % The DC component (fftx(1)) and Nyquist component (fftx(1+nfft/2), if it
-    % exists) are unique and should not be multiplied by 2.
-    limit = NumUniquePts - 1;
-    % odd nfft excludes Nyquist point
-    if rem(windowSizeSamples, 2), limit = NumUniquePts; end
-    
-    mx = mx / windowSizeSamples;
-    
-    for k = 1:nargout
-        if f1(k) > 1 && f2(k) <= limit
-            varargout{k} = sum(mx(f1(k):f2(k), :), 1)' * 2;     
-        elseif f1(k) > 1 && f2(k) > limit
-            varargout{k} = sum(mx(f1(k):limit, :), 1)' * 2 + sum(mx(limit + 1:f2(k), :), 1)';
-        elseif f2(k) < limit
-            varargout{k} = sum(mx(1, :), 1)' + sum(mx(2:f2(k), :), 1)' * 2;
-        else
-            varargout{k} = sum(mx(1, :), 1)' + sum(mx(2:limit, :), 1)' * 2 + sum(mx(limit + 1:f2(k), :), 1)';
+        fftx = fft(windows, windowSizeSamples);
+        mx = (abs(fftx(1:NumUniquePts, :)) .^ 2) / windowSizeSamples; % Since FFT is symmetric, throw away second half
+                       
+        for k = 1:nargout
+            if f1(k) > 1 && f2(k) <= limitPts
+                temp = sum(mx(f1(k):f2(k), :), 1)' * 2;     
+            elseif f1(k) > 1 && f2(k) > limitPts
+                temp = sum(mx(f1(k):limitPts, :), 1)' * 2 + sum(mx(limitPts + 1:f2(k), :), 1)';
+            elseif f2(k) < limitPts
+                temp = sum(mx(1, :), 1)' + sum(mx(2:f2(k), :), 1)' * 2;
+            else
+                temp = sum(mx(1, :), 1)' + sum(mx(2:limitPts, :), 1)' * 2 + sum(mx(limitPts + 1:f2(k), :), 1)';
+            end
+            temp = temp  / windowSizeSamples;
+            varargout{k} = [varargout{k}; temp];
         end
-        varargout{k} = varargout{k} / windowSizeSamples;
-        varargout{k}(currentWindow + 1:numWindows) = varargout{k}(currentWindow);
     end
+    for k = 1:nargout
+        varargout{k}(windowsLimit + 1:numWindows) = varargout{k}(windowsLimit);
+    end
+    
 end

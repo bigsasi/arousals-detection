@@ -1,11 +1,14 @@
 %% The code below is based on the methods described in the following reference(s):
 % 
-% [1] - I. Fern�ndez-Varela, D. Alvarez-Estevez, E. Hern�ndez-Pereira, V. Moret-Bonillo, 
+% [1] - I. Fernández-Varela, D. Alvarez-Estevez, E. Hernández-Pereira, V. Moret-Bonillo, 
 % "A simple and robust method for the automatic scoring of EEG arousals in
-% polysomnographic recordings", Computers in Biology and Medicine, vol. 87, pp. 77-86, 2017 
+% polysomnographic recordings", Computers in Biology and Medicine, vol. 87, pp. 77-86, 2017
 %
-% Copyright (C) 2017 Isaac Fern�ndez-Varela
-% Copyright (C) 2017 Diego Alvarez-Estevez
+% [2] - D. Alvarez-Estevez, I. Fernández-Varela, "Large-scale validation of an automatic EEG arousal detection
+% algorithm using different heterogeneous databases", Sleep Medicine, vol. 57, pp. 6-14, 2019 
+%
+% Copyright (C) 2017-2019 Isaac Fernández-Varela
+% Copyright (C) 2017-2019 Diego Alvarez-Estevez
 
 %% This program is free software: you can redistribute it and/or modify
 %% it under the terms of the GNU General Public License as published by
