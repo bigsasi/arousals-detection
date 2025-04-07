@@ -71,7 +71,13 @@ Dmax = header.signals_info(signalIndex).digital_max;
 logConversion = strcmp(header.signals_info(signalIndex).physical_dimension', 'Filtered');
 if logConversion
     % Parse prefiltering to set this values
-    tokens = textscan(header.signals_info(signalIndex).prefiltering, 'sign*LN[sign*(at %.1fHz)/(%.5f)]/(%.5f)(Kemp:J Sleep Res 1998-supp2:132)');
+    % Find starting of sequence
+    startPat = strfind(header.signals_info(signalIndex).prefiltering', 'sign*LN[sign*(');
+    if not(isempty(startPat))
+        tokens = textscan(header.signals_info(signalIndex).prefiltering(startPat:end), 'sign*LN[sign*(%s)/(%.6f)]/(%.6f)');
+    else
+        error('Unmatched expected prefiltering specification for EDF+ log conversion');
+    end
     if isempty(tokens{2})
         disp('Warning: assigned default values to logConversion');
         LogFloatY0 = 0.0001; % default value
